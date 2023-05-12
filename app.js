@@ -1,34 +1,45 @@
+// const express = require('express');
+// const path = require('path');
+
+// const bodyParser = require('body-parser');
+
+// const adminRouter = require('./routes/admin');
+
+// const shopRouter = require('./routes/shop');
+
+// const app = express();
+
+// //body parsing should be done at the beginning of the middlewares.
+
+// app.use(bodyParser.urlencoded({extended: false}));
+// app.use(express.static(path.join(__dirname,'public')));
+
+// app.use(adminRouter);
+
+// app.use(shopRouter);
+
+
+// app.listen(5000);
+const path = require('path');
+
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
+
 const app = express();
+
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
+const contactRoutes = require('./routes/contact');
+
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/login',(req,res,next)=>{
-    res.send('<form onsubmit="localStorage.setItem(`username`,document.getElementById(`username`).value)" action="/" method="GET"><input type="text" id="username" name="title"><button type="submit">Add</button></form>')
+app.use('/admin', adminRoutes);
+app.use(shopRoutes);
+app.use(contactRoutes);
+
+app.use((req, res, next) => {
+    res.status(404).sendFile(path.join(__dirname, 'views', 'pagenotfound.html'));
 });
 
-app.get("/", (req,res,next)=>{
-    fs.readFile("message.txt",(err,data)=>{
-        if(err){
-            console.log(err);
-            data ="no data found";
-        }
-        res.send(
-            `${data}<form action="/" method="POST" onsubmit="document.getElementById('username').value=localStorage.getItem('username')">
-            <input type="text" id="message" name="message"></input>
-            <input type="hidden" id="username" name="username"></input>
-            <button type="submit">send</button>
-            </form>`
-        )
-    });
-});
-
-app.post("/",(req,res,next)=>{
-    console.log(req.body.username);
-    console.log(req.body.message);
-    fs.writeFile("message.txt",`${req.body.username}:${req.body.message}`,{flage:"a"}, (err)=>{
-        err? console.log(err):res.redirect("/");
-    });
-});
-app.listen(8000);
+app.listen(5000);
