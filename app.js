@@ -1,32 +1,16 @@
-const path = require('path');
+const express=require("express")
+const cors=require("cors")
+const bodyparser=require("body-parser")
+const sequelize=require("./util/database")
 
-const express = require('express');
-const bodyParser = require('body-parser');
+const Userdetails=require("./routes/user")
 
-const errorController = require('./controllers/error');
-const sequelize = require('./util/database');
+const app=express();
+app.use(cors());
+app.use(bodyparser.json())
 
-const app = express();
+app.use(Userdetails)
 
-app.set('view engine', 'ejs');
-app.set('views', 'views');
-
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/admin', adminRoutes);
-app.use(shopRoutes);
-
-app.use(errorController.get404);
-
-
-sequelize.sync().then(result =>{
-    //console.log(result);
-    app.listen(7080);
-}).catch(err=>{
-    console.log(err);
+sequelize.sync().then(()=>{
+    app.listen(8081)
 })
-
