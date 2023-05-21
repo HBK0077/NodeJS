@@ -1,26 +1,22 @@
-const Sequelize=require("sequelize")
-const sequelize=require('../util/database')
+//here we define the table.
+const Sequelize = require('sequelize');
+const sequelize = require("../util/database");
 
-const user=sequelize.define("users",{
+const expense = sequelize.define("expenses",{
     id:{
-        type:Sequelize.INTEGER,
-        primaryKey:true,
-        allowNull:false,
-        autoIncrement:true
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: true
     },
-   name:{
-    type:Sequelize.STRING,
-    allowNull:false
-   } ,
-   email:{
-    type:Sequelize.STRING,
-    allowNull:false,
-    unique:true
-   },
-   phone:{
-    type:Sequelize.STRING,
-    allowNull:false,
-    unique:true
-   }
+    description:{
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    amount:{
+        type: Sequelize.DOUBLE,
+        allowNull: false
+    }
 })
-module.exports=user
+
+module.exports = expense;

@@ -1,107 +1,47 @@
-const Product = require('../models/product');
+//here we add, get and deleted the expense
+const expense = require("../models/define");
 
-exports.getAddProduct = (req, res, next) => {
-  res.render('admin/edit-product', {
-    pageTitle: 'Add Product',
-    path: '/admin/add-product',
-    editing: false
-  });
-};
-
-exports.postAddProduct = (req, res, next) => {
-  const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
-  const price = req.body.price;
-  const description = req.body.description;
-  Product.create({
-    title: title,
-    price: price,
-    imageUrl: imageUrl,
-    description: description
-  }).then(result =>{
-    console.log("Product Created");
-    //console.log(result);
-    res.redirect('/');
-  })
-  .catch(err=>{
-    console.log(err)
-  });
-};
-
-exports.getEditProduct = (req, res, next) => {
-  const editMode = req.query.edit;
-  if (!editMode) {
-    return res.redirect('/');
-  }
-  const prodId = req.params.productId;
-  Product.findAll({where: {id:prodId}})
-  .then(product =>{
-    if (!product) {
-      return res.redirect('/');
+exports.addExpenses = async(req,res,next)=>{
+    try{
+        const description = req.body.description;
+        const amount = req.body.amount;
+        console.log(description, amount);
+        const data = await expense.create({
+            description: description,
+            amount: amount
+        })
+        res.json({newexpense: data});
     }
-    res.render('admin/edit-product', {
-      pageTitle: 'Edit Product',
-      path: '/admin/edit-product',
-      editing: editMode,
-      product: product[0]
-    });
-  })
-  .catch(err=>{
-    console.log(err);
-  });
-  // Product.findById(prodId, product => {
-    
-    
-  // });
-};
+    catch(err){
+        res.json({
+            Error: err
+        })
+    }
 
-exports.postEditProduct = (req, res, next) => {
-  const prodId = req.body.productId;
-  const updatedTitle = req.body.title;
-  const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
-  const updatedDesc = req.body.description;
-  //since find all returns an array we only want to edit the first element in the array.
-  //so while changing the values we give the index value too.
-  Product.findAll({where: {id: prodId}})
-  .then(product =>{
-    product[0].title = updatedTitle;
-    product[0].price = updatedPrice;
-    product[0].description = updatedDesc;
-    product[0].imageUrl = updatedImageUrl;
-    return product[0].save();
-  })
-  .then(result =>{
-    console.log("Updated Product");
-    res.redirect('/admin/products');
-  })
-  .catch(err=>{
-    console.log(err);
-  });
-};
+}
 
-exports.getProducts = (req, res, next) => {
-  Product.findAll().then(products =>{
-    res.render('admin/products', {
-      prods: products,
-      pageTitle: 'Admin Products',
-      path: '/admin/products'
-  });
-}).catch(err=>{
-  console.log(err);
-});
-};
+exports.getExpenses = async(req,res,next)=>{
+    try{
+        const data = await expense.findAll()
+        res.json({allExpense: data});
 
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
-  Product.findAll({where: {id: prodId}})
-  .then(product =>{
-    return product[0].destroy();
-  })
-  .then(result=>{
-    console.log("Product Deleted");
-    res.redirect('/admin/products');
-  })
-  .catch(err=>{console.log(err)});
-  
-};
+    }catch(err){
+        console.log("Error in app.js get method");
+        res.json({Error: err});
+
+    }
+}
+
+exports.deleteExpense = async(req,res,next)=>{
+    try{
+        if(!req.params.id){
+            throw new Error("Id is mandatory");
+        }
+    const detailsId = req.params.id;
+    await expense.destroy({where: {id:detailsId}});
+    }
+    catch(err){
+        console.log("Error in app.js delete Method");
+        res.json({Error: err});
+    }
+}

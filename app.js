@@ -3,14 +3,14 @@ const cors=require("cors")
 const bodyparser=require("body-parser")
 const sequelize=require("./util/database")
 
-const Userdetails=require("./routes/user")
+const expenseDetails=require("./routes/expenses")
 
 const app=express();
 app.use(cors());
 app.use(bodyparser.json())
 
-app.use(Userdetails)
+app.use(expenseDetails)
 
 sequelize.sync().then(()=>{
-    app.listen(8081)
+    app.listen(2500)
 })
