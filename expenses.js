@@ -5,6 +5,8 @@ const admin = require("../controllers/admin");
 
 routes.post("/add-expenses", admin.addExpenses);
 
+routes.post("/add-user", admin.addUser);
+
 routes.get("/show-expenses", admin.getExpenses);
 
 routes.delete("/delete-expenses/:id", admin.deleteExpense);

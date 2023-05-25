@@ -1,98 +1,67 @@
-const inventory = require("../models/define");
+//here we add, get and deleted the expense
+const expense = require("../models/expense");
+const user = require("../models/user"); 
 
-
-exports.addmethod= async (req,res,next)=>{
+exports.addExpenses = async(req,res,next)=>{
     try{
-    const name = req.body.name;
-    const quantity = req.body.quantity;
-    const price = req.body.price;
-    const description = req.body.description;
-    //console.log(name,quantity,price,description);
-    const data = await inventory.create({
-        name:name,
-        description: description,
-        quantity: quantity,
-        price: price
-    })
-    //console.log(data);
-    res.json({newitem: data})
-   
-    } catch(err){
+        const description = req.body.description;
+        const amount = req.body.amount;
+        console.log(description, amount);
+        const data = await expense.create({
+            description: description,
+            amount: amount
+        })
+        res.json({newexpense: data});
+    }
+    catch(err){
         res.json({
-            Error:err
+            Error: err
         })
     }
+
+}
+exports.addUser = async(req,res,next)=>{
+    try{
+        const name = req.body.name;
+        const email = req.body.email;
+        const password = req.body.password;
+        const data = await user.create({
+            name:name,
+            email:email,
+            password:password
+        })
+        res.json({newUser: data})
+    }
+    catch(err){
+        res.json({
+            Error: err
+        })
+    }
+
 }
 
-exports.getmethod=async(req,res)=>{
+exports.getExpenses = async(req,res,next)=>{
     try{
-        const data=await inventory.findAll()
-        //console.log(data);
-        res.json({allData: data})
+        const data = await expense.findAll()
+        res.json({allExpense: data});
+
     }catch(err){
-        console.log("this is error from app.js in get method")
-        res.json({Error:err,})
-    }
-    
-}
-//Buy 1 method
-exports.buy1data=async(req,res)=>{
-    const detailsId=req.params.id;
-    console.log(detailsId);
-    try{
-    if(!req.params.id){
-        throw new Error ("id is mandatory to delete")
-    }
-    await inventory.update(
-        {quantity: req.body.quantity},
-        {where: {id:detailsId}
-    });
-    const data = await inventory.findAll({where: {id:detailsId}})
-    res.json({updated:data});
-    }
-    catch(err){
-        console.log("error in app.js buy1 method")
-        res.json({Error:err})
+        console.log("Error in app.js get method");
+        res.json({Error: err});
+
     }
 }
 
-//Buy 2 method
-exports.buy2data=async(req,res)=>{
-    const detailsId=req.params.id
+exports.deleteExpense = async(req,res,next)=>{
     try{
-    if(!req.params.id){
-        throw new Error ("id is mandatory to delete")
-    }
-    
-    await inventory.update(
-        {quantity: req.body.quantity},
-        {where: {id:detailsId}
-    });
-    const data = await inventory.findAll({where:{id:detailsId}})
-    res.json({updated:data});
+        if(!req.params.id){
+            throw new Error("Id is mandatory");
+        }
+    const detailsId = req.params.id;
+    await expense.destroy({where: {id:detailsId}});
     }
     catch(err){
-        console.log("error in app.js buy2 method")
-        res.json({Error:err})
-    }
-}
-
-//Buy 3 method
-exports.buy3data=async(req,res)=>{
-    const detailsId=req.params.id
-    try{
-    if(!req.params.id){
-        throw new Error ("id is mandatory to delete")
-    }
-    await inventory.update(
-        {quantity: req.body.quantity},
-        {where: {id:detailsId}
-    });
-    const data = await inventory.findAll({where:{id:detailsId}})
-    res.json({updated:data});
-    }
-    catch(err){
-        console.log("error in app.js buy3 method")
-        res.json({Error:err})
+        console.log("Error in app.js delete Method");
+        res.json({Error: err});
     }
 }

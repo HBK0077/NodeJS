@@ -1,12 +1,26 @@
-const express=require("express")
-const routes=express.Router()
-const add=require("../controllers/add")
+//here we define the table.
+const Sequelize = require('sequelize');
+const sequelize = require("../util/database");
 
+const user = sequelize.define("users",{
+    id:{
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: true
+    },
+    name:{
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    email:{
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    password:{
+        type: Sequelize.STRING,
+        allowNull: false
+    }
+})
 
-routes.post("/add-details",add.addmethod)
-
-routes.get("/show-details",add.getmethod)
-
-routes.delete("/delete-details/:id",add.deletemethod)
-
-module.exports=routes
+module.exports = user;
