@@ -24,14 +24,25 @@ exports.addUser = async(req,res,next)=>{
     try{
         const name = req.body.name;
         const email = req.body.email;
+        const checkemail = req.body.email;
         const password = req.body.password;
-        const data = await user.create({
+        const found = await user.findAll({
+            where:{
+                email: checkemail
+            }
+        })
+        if(found != ""){
+            res.json("User Already exists!! Please enter a different email");
+        }else{
+            const data = await user.create({
             name:name,
             email:email,
             password:password
         })
         res.json({newUser: data})
+    }    
     }
+
     catch(err){
         res.json({
             Error: err

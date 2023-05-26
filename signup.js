@@ -14,8 +14,13 @@ button.addEventListener("click", (e)=>{
     console.log(obj);
     axios.post("http://localhost:2500/add-user",obj)
     .then((response)=>{
-        console.log(response.data.newUser);
-        console.log("User data saved in database")
+        //console.log(response.data.newUser);
+        if(response.data.newUser){
+            console.log("User data saved in database");
+        }else{
+            console.log("User already exists");
+        }
+        
     })
     .catch((error)=>{
         console.log(error);
