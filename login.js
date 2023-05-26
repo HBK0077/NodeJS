@@ -9,11 +9,11 @@ button.addEventListener("click", (e)=>{
         email:email.value,
         password:password.value
     }
-    console.log(obj);
+    //console.log(obj);
     axios.post("http://localhost:2500/user-login",obj)
     .then((response)=>{
-        //console.log(response.data.newUser);
-        if(response.data.userLogin){
+        console.log(response.data);
+        if(response.data.success===true){
             console.log("User data is available in DB");
             alert("User Logged In");
         }else{

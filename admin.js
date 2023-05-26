@@ -1,6 +1,7 @@
 //here we add, get and deleted the expense
 const expense = require("../models/expense");
 const user = require("../models/user"); 
+const bcrypt = require('bcrypt');
 
 exports.addExpenses = async(req,res,next)=>{
     try{
@@ -26,21 +27,31 @@ exports.addUser = async(req,res,next)=>{
         const email = req.body.email;
         const checkemail = req.body.email;
         const password = req.body.password;
-        const found = await user.findAll({
-            where:{
-                email: checkemail
+        if(password.length<5){
+            return(res.json("password should atleast contain 5 letters"));
+        }
+        bcrypt.hash(password, 5, async(error, hash)=>{
+            if(error){
+                console.log("Encryption error");
+            }else{
+                const found = await user.findAll({
+                    where:{
+                        email: checkemail
+                    }
+                })
+                if(found.length != 0){
+                    res.json("User Already exists!! Please enter a different email");
+                }else{
+                    const data = await user.create({
+                    name:name,
+                    email:email,
+                    password:hash
+                })
+                res.json({newUser: data})
+            }    
             }
+            
         })
-        if(found != ""){
-            res.json("User Already exists!! Please enter a different email");
-        }else{
-            const data = await user.create({
-            name:name,
-            email:email,
-            password:password
-        })
-        res.json({newUser: data})
-    }    
     }
 
     catch(err){
@@ -53,21 +64,36 @@ exports.addUser = async(req,res,next)=>{
 
 exports.userLogin = async(req,res,next)=>{
     try{
-        const email = req.body.email;
-        const password = req.body.password;
+        const checkEmails = req.body.email;
+        const checkPassword = req.body.password;
+        console.log(checkEmails);
         const login = await user.findAll({
             where:{
-                email:email,
-                password: password
+                email:checkEmails
             }
         })
-        if(!login){
-            console.log("Please enter correct email and password")
-            res.json({userLogin: login});
-        }else{
-            console.log("Enter email and password is correct")
-            res.json({userLogin: login});
+       
+        if(login.length>0){
+            bcrypt.compare(checkPassword, login[0].password, async(err, result)=>{
+                if(err){
+                    return(res.json({msg:"dcrypting error",
+                    success:false}))
+                }
+                if(result===true){
+                    return(
+                        res.json({msg:"Password is correct",
+                    success:true}
+                    ))
+                }else{
+                    return(res.json({msg:"Password is incorrect",
+                    success:false}))
+                }
+            })
         }
+        else{
+                return(res.json("User doesnt exist"));
+            }
+            
     }
     catch(error){
         res.json({Error: error});
