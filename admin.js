@@ -51,6 +51,29 @@ exports.addUser = async(req,res,next)=>{
 
 }
 
+exports.userLogin = async(req,res,next)=>{
+    try{
+        const email = req.body.email;
+        const password = req.body.password;
+        const login = await user.findAll({
+            where:{
+                email:email,
+                password: password
+            }
+        })
+        if(!login){
+            console.log("Please enter correct email and password")
+            res.json({userLogin: login});
+        }else{
+            console.log("Enter email and password is correct")
+            res.json({userLogin: login});
+        }
+    }
+    catch(error){
+        res.json({Error: error});
+    }
+}
+
 exports.getExpenses = async(req,res,next)=>{
     try{
         const data = await expense.findAll()

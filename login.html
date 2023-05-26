@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign up</title>
+    <title>Login Page</title>
 </head>
 <style>
     body{
@@ -71,11 +71,8 @@
    <main>
     <div class="container">
     <form action="#" id="form" method="post">
-        <div class="heading">Sign Up</div><br>
+        <div class="heading">Login</div><br>
         <div id="error"></div>
-        <label for="name" class="bg-transparent">Enter Name:</label><br>
-        <input type="text"  id="name"  required>
-        <br>
         <label for="email" class="bg-transparent">Enter Email:</label><br>
         <input type="email"  id="email"  required>
         <br>
@@ -84,12 +81,12 @@
         <br>
         <input type="button" class="btn btn-control" id="press" value="submit">
         <br>
-        <a href="login.html" class="btn btn-control">Existing User: Login</a><br>
-        <ol id="allExpenses"></ol>
+        <a href="signup.html" class="btn btn-control">New User: SignUP</a>
+        <br>
 </form>
 </div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
-    <script src="signup.js"></script>
+    <script src="login.js"></script>
 </body>
 </html>
