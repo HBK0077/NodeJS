@@ -7,10 +7,12 @@ exports.addExpenses = async(req,res,next)=>{
     try{
         const description = req.body.description;
         const amount = req.body.amount;
+        const category = req.body.category;
         console.log(description, amount);
         const data = await expense.create({
             description: description,
-            amount: amount
+            amount: amount,
+            category: category
         })
         res.json({newexpense: data});
     }
@@ -80,6 +82,7 @@ exports.userLogin = async(req,res,next)=>{
                     success:false}))
                 }
                 if(result===true){
+                    //res.redirect("index.html");
                     return(
                         res.json({msg:"Password is correct",
                     success:true}

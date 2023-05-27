@@ -23,9 +23,9 @@ window.addEventListener("DOMContentLoaded", async()=>{
 
 function showBrowser(show){
     //console.log(show);
-    var childNode=`<li id=${show.id} style="margin-bottom:10px;">${show.description}-${show.amount}
+    var childNode=`<li id=${show.id} style="margin-bottom:10px;">${show.description}-${show.amount}-${show.category}
              <button onclick="deleteExpense('${show.id}')" style="float:right; margin-left:5px;">Delete</button>  
-             <button onclick=editExpense('${show.id}','${show.description}','${show.amount}') style="float:right;">Edit</button>
+             <button onclick=editExpense('${show.id}','${show.description}','${show.amount}','${show.category}') style="float:right;">Edit</button>
                      </li>`
                      parentNode.innerHTML=parentNode.innerHTML+childNode;
 
@@ -52,7 +52,8 @@ button.addEventListener("click", (e)=>{
     //store the values in the object
     myObj={
         description: description.value,
-        amount:amount.value
+        amount:amount.value,
+        category:category.value
     };
     console.log(myObj);
 

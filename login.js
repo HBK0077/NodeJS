@@ -14,6 +14,7 @@ button.addEventListener("click", (e)=>{
     .then((response)=>{
         console.log(response.data);
         if(response.data.success===true){
+            window.location.href="./index.html";
             console.log("User data is available in DB");
             alert("User Logged In");
         }else{
