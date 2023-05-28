@@ -2,6 +2,7 @@
 const expense = require("../models/expense");
 const user = require("../models/user"); 
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken'); 
 
 exports.addExpenses = async(req,res,next)=>{
     try{
@@ -12,11 +13,14 @@ exports.addExpenses = async(req,res,next)=>{
         const data = await expense.create({
             description: description,
             amount: amount,
-            category: category
+            category: category,
+            userId: req.user.id
         })
+        console.log(req.user.id);
         res.json({newexpense: data});
     }
     catch(err){
+        console.log(err);
         res.json({
             Error: err
         })
@@ -30,11 +34,12 @@ exports.addUser = async(req,res,next)=>{
         const checkemail = req.body.email;
         const password = req.body.password;
         if(password.length<5){
-            return(res.json("password should atleast contain 5 letters"));
+            return(res.json({msg:"password should atleast contain 5 letters",
+        success: false}));
         }
         bcrypt.hash(password, 5, async(error, hash)=>{
             if(error){
-                console.log("Encryption error");
+                return res.json({msg:"Encryption error", success:false});
             }else{
                 const found = await user.findAll({
                     where:{
@@ -42,14 +47,14 @@ exports.addUser = async(req,res,next)=>{
                     }
                 })
                 if(found.length != 0){
-                    res.json("User Already exists!! Please enter a different email");
+                    res.json({msg:"User Already exists!! Please enter a different email", success:false});
                 }else{
                     const data = await user.create({
                     name:name,
                     email:email,
                     password:hash
                 })
-                res.json({newUser: data})
+                res.json({newUser: data, msg:"User created", success: true});
             }    
             }
             
@@ -62,6 +67,9 @@ exports.addUser = async(req,res,next)=>{
         })
     }
 
+}
+function generateAccessToken(id){
+    return jwt.sign({userId: id}, 'secretKeyIsBiggerValue')
 }
 
 exports.userLogin = async(req,res,next)=>{
@@ -85,7 +93,7 @@ exports.userLogin = async(req,res,next)=>{
                     //res.redirect("index.html");
                     return(
                         res.json({msg:"Password is correct",
-                    success:true}
+                    success:true, token: generateAccessToken(login[0].id)}
                     ))
                 }else{
                     return(res.json({msg:"Password is incorrect",
@@ -105,12 +113,14 @@ exports.userLogin = async(req,res,next)=>{
 
 exports.getExpenses = async(req,res,next)=>{
     try{
-        const data = await expense.findAll()
-        res.json({allExpense: data});
+        const data = await expense.findAll({where: {userId: req.user.id }})
+            return res.json({allExpense: data});
+        
+        
 
     }catch(err){
         console.log("Error in app.js get method");
-        res.json({Error: err});
+        return res.json({Error: err});
 
     }
 }
@@ -121,7 +131,8 @@ exports.deleteExpense = async(req,res,next)=>{
             throw new Error("Id is mandatory");
         }
     const detailsId = req.params.id;
-    await expense.destroy({where: {id:detailsId}});
+    await expense.destroy({where: {id:detailsId, userId: req.user.id}});
+    return res.json({msg:"Deleted", success:true})
     }
     catch(err){
         console.log("Error in app.js delete Method");

@@ -4,25 +4,27 @@ let password = document.getElementById('password');
 let button = document.getElementById('press');
 
 //storing data in database
-button.addEventListener("click", (e)=>{
-    e.preventDefault();
+button.addEventListener("click", async(e)=>{
+    try{
+        e.preventDefault();
     obj={
         name:name.value,
         email:email.value,
         password:password.value
     }
     console.log(obj);
-    axios.post("http://localhost:2500/add-user",obj)
-    .then((response)=>{
+    const adduser = await axios.post("http://localhost:2500/add-user",obj)
+
         //console.log(response.data.newUser);
-        if(response.data.newUser){
+        if(adduser.data.newUser){
             console.log("User data saved in database");
+            alert(adduser.data.msg);
+            window.location.href="./login.html";
         }else{
             console.log("User already exists");
         }
-        
-    })
-    .catch((error)=>{
-        console.log(error);
-    })
+
+    }catch(err){
+        console.log(err);
+    }
 })

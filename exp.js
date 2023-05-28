@@ -9,12 +9,14 @@ let parentNode=document.getElementById("allExpenses")
 //fetch all the expensedata  using get service
 window.addEventListener("DOMContentLoaded", async()=>{
     try{
-        const response = await axios.get("http://localhost:2500/show-expenses");
+        const token = localStorage.getItem('token');
+        const response = await axios.get("http://localhost:2500/show-expenses",{headers: {"Authorization": token}})
         console.log(response.data.allExpense);
         console.log(response.data.allExpense.length);
         for(var i=0; i<response.data.allExpense.length;i++){
             showBrowser(response.data.allExpense[i]);
         }
+        
     }catch(err){
         console.log({Error: err});
         console.log("Error in DOM CONTENT!!");
@@ -33,22 +35,26 @@ function showBrowser(show){
 
 //delete the expense
 
-function deleteExpense(key){
-    axios.delete(`http://localhost:2500/delete-expenses/${key}`)
-    .then((resource)=>{
+async function deleteExpense(key){
+    try{
+        console.log(parentNode)
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:2500/delete-expenses/${key}`,{headers: {"Authorization": token}})
         console.log("Entered Deleted DOM");
-        child = document.getElementById(key);
-        
+        let child = document.getElementById(key);
+        //console.log(child);
         parentNode.removeChild(child);
-    }).catch((err)=>{
-        console.log("Error in Delete DOM");
-    });
+    }catch(err){
+        console.log(err);
+    }
+    
 
 }
 
 //storing the data on the database
-button.addEventListener("click", (e)=>{
-    e.preventDefault();
+button.addEventListener("click", async(e)=>{
+    try{
+        e.preventDefault();
     //store the values in the object
     myObj={
         description: description.value,
@@ -56,17 +62,19 @@ button.addEventListener("click", (e)=>{
         category:category.value
     };
     console.log(myObj);
-
-    axios.post("http://localhost:2500/add-expenses",myObj)
-    .then((response)=>{
-        console.log("post -->", response.data.newexpense);
-        showBrowser(response.data.newexpense);
-    })
-    .catch((err)=>{
+    const token = localStorage.getItem('token');
+    const addExpense = await axios.post("http://localhost:2500/add-expenses",myObj,{headers:{'Authorization': token}})
+        //console.log(response);
+        console.log("post -->", addExpense.data.newexpense);
+        showBrowser(addExpense.data.newexpense);
+        //Making the input box empty
+        description.value="";
+        amount.value="";
+        category.value="";
+    }catch(err){
         console.log(err);
-    });
+    }
+    
 
-    //Making the input box empty
-    description.value="";
-    amount.value="";
+    
 })

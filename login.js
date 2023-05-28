@@ -3,27 +3,31 @@ let password = document.getElementById('password');
 let button = document.getElementById('press');
 
 //user login 
-button.addEventListener("click", (e)=>{
-    e.preventDefault();
+button.addEventListener("click", async(e)=>{
+    try{
+        e.preventDefault();
     obj={
         email:email.value,
         password:password.value
     }
     //console.log(obj);
-    axios.post("http://localhost:2500/user-login",obj)
-    .then((response)=>{
-        console.log(response.data);
-        if(response.data.success===true){
-            window.location.href="./index.html";
+    const userLogin = await axios.post("http://localhost:2500/user-login",obj)
+        
+        if(userLogin.data.success===true){
+           
+            localStorage.setItem('token', userLogin.data.token);
+            
             console.log("User data is available in DB");
             alert("User Logged In");
+             window.location.href="./index.html";
+            
         }else{
             console.log("User Not existing");
             alert("Please Sign Up");
         }
-        
-    })
-    .catch((error)=>{
-        console.log(error);
-    })
+    }catch(err){
+        console.log(err);
+    }
+    
+   
 })
