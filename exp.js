@@ -5,6 +5,8 @@ let category=document.getElementById("category")
 let button=document.getElementById("press")
 let error=document.getElementById("error")
 let parentNode=document.getElementById("allExpenses")
+//let RazorPay = require('razorpay');
+let btn = document.getElementById("premium");
 
 //fetch all the expensedata  using get service
 window.addEventListener("DOMContentLoaded", async()=>{
@@ -73,8 +75,40 @@ button.addEventListener("click", async(e)=>{
         category.value="";
     }catch(err){
         console.log(err);
-    }
-    
-
-    
+    } 
 })
+
+//premium button code
+document.getElementById("premium").onclick = async function(e){
+    const token = localStorage.getItem('token');
+    const response = await axios.get('http://localhost:2500/premium-membership',{headers:{"Authorization": token}});
+    console.log(response);
+    var options = {
+        "key": response.data.key_id,
+        "order_id": response.data.order.id,
+        "handler": async function(response){
+            await axios.post("http://localhost:2500/update-transaction-status",{
+                order_id: options.order_id,
+                payment_id: response.razorpay_payment_id,
+        },{headers: {"Authorization": token}})
+
+        alert("Your are a premium user now");
+        btn.style.visibility="hidden";
+            
+        }
+    };
+    const rzp1 = new Razorpay(options);
+    rzp1.open();
+    e.preventDefault();
+
+    rzp1.on("payment.failed", async()=>{
+        key = response.data.order.id;
+        let failed = await axios.post("http://localhost:2500/update-transaction-status",{
+            order_id: key,
+            payment_id: null
+        },{headers: {"Authorization": token}})
+        console.log(failed.data.msg);
+        alert("Somthing went wrong");
+    });
+}
+
