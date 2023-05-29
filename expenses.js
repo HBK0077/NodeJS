@@ -23,4 +23,7 @@ routes.get("/premium-membership", userAuthentication.authenticate, admin.premium
 //update Transactions
 routes.post("/update-transaction-status", userAuthentication.authenticate, admin.updateStatus);
 
+//leaderboard
+routes.get("/leaderboard",userAuthentication.authenticate, admin.leaderboardDetails);
+
 module.exports = routes;

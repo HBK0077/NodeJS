@@ -5,19 +5,86 @@ let category=document.getElementById("category")
 let button=document.getElementById("press")
 let error=document.getElementById("error")
 let parentNode=document.getElementById("allExpenses")
-//let RazorPay = require('razorpay');
 let btn = document.getElementById("premium");
+
+
+//token decoder
+function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
+
+function showPremiumButton(){
+    btn.style.visibility="hidden";
+    const element = document.createElement("h4");
+    const text = document.createTextNode("You are a Premium User.");
+    element.appendChild(text);
+    const heading = document.getElementById("heading");
+    heading.appendChild(element);
+}
+
+async function showLeaderboard(){
+    try{
+        const inputElement = document.createElement("input");
+        inputElement.type = "button";
+        inputElement.value = "Show Leaderboard";
+        console.log(inputElement);
+        inputElement.onclick = async()=>{
+            
+                const token = localStorage.getItem("token");
+                const userLeaderboardArray= await axios.get("http://localhost:2500/leaderboard",{headers:{"Authorization": token}});
+                console.log(userLeaderboardArray);
+
+                var leaderboardElem = document.getElementById("board");
+                leaderboardElem.innerHTML += `<h1>LeaderBoard</h1>`
+                userLeaderboardArray.data.forEach((userDetails)=>{
+                    leaderboardElem.innerHTML += `<li>Name-${userDetails.name} TotalExpense-${userDetails.totalCost}</li>`;
+                
+                })
+               
+            }
+            document.getElementById("message").appendChild(inputElement);
+            }catch(err){
+                console.log(err);
+            }
+           
+
+        }
+
 
 //fetch all the expensedata  using get service
 window.addEventListener("DOMContentLoaded", async()=>{
     try{
         const token = localStorage.getItem('token');
+        const decodeToken = parseJwt(token);
+        console.log(decodeToken);
+        const isPremium = decodeToken.isPremium;
+        //console.log(isPremium);
+       if(isPremium === true){
         const response = await axios.get("http://localhost:2500/show-expenses",{headers: {"Authorization": token}})
         console.log(response.data.allExpense);
         console.log(response.data.allExpense.length);
         for(var i=0; i<response.data.allExpense.length;i++){
             showBrowser(response.data.allExpense[i]);
         }
+        showPremiumButton();
+        showLeaderboard();
+        localStorage.setItem('token', token);
+        
+       }else{
+        const response = await axios.get("http://localhost:2500/show-expenses",{headers: {"Authorization": token}})
+        console.log(response.data.allExpense);
+        console.log(response.data.allExpense.length);
+        for(var i=0; i<response.data.allExpense.length;i++){
+            showBrowser(response.data.allExpense[i]);
+        }
+       }
+    
         
     }catch(err){
         console.log({Error: err});
@@ -87,13 +154,16 @@ document.getElementById("premium").onclick = async function(e){
         "key": response.data.key_id,
         "order_id": response.data.order.id,
         "handler": async function(response){
-            await axios.post("http://localhost:2500/update-transaction-status",{
+            let result = await axios.post("http://localhost:2500/update-transaction-status",{
                 order_id: options.order_id,
                 payment_id: response.razorpay_payment_id,
         },{headers: {"Authorization": token}})
 
         alert("Your are a premium user now");
-        btn.style.visibility="hidden";
+    
+        localStorage.setItem('token', result.data.token);
+        showPremiumButton();
+        showLeaderboard();
             
         }
     };

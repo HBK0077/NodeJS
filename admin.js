@@ -71,8 +71,8 @@ exports.addUser = async(req,res,next)=>{
     }
 
 }
-function generateAccessToken(id){
-    return jwt.sign({userId: id}, 'secretKeyIsBiggerValue')
+function generateAccessToken(id, isPremium){
+    return jwt.sign({userId: id, isPremium}, 'secretKeyIsBiggerValue')
 }
 
 exports.userLogin = async(req,res,next)=>{
@@ -85,18 +85,19 @@ exports.userLogin = async(req,res,next)=>{
                 email:checkEmails
             }
         })
-       
+        console.log(login[0]);
         if(login.length>0){
             bcrypt.compare(checkPassword, login[0].password, async(err, result)=>{
                 if(err){
                     return(res.json({msg:"dcrypting error",
                     success:false}))
                 }
+                //console.log(result);
                 if(result===true){
                     //res.redirect("index.html");
                     return(
                         res.json({msg:"Password is correct",
-                    success:true, token: generateAccessToken(login[0].id)}
+                    success:true, token: generateAccessToken(login[0].id, login[0].isPremium)}
                     ))
                 }else{
                     return(res.json({msg:"Password is incorrect",
@@ -182,9 +183,35 @@ exports.updateStatus = async(req,res,next)=>{
         await orders.update({paymentid: payment_id, status: "SUCCESSFUL"});
         //console.log(payment_id);
         await req.user.update({isPremium: true});
-        return res.json({success: true, msg:"Transaction Sccessfull"});
+        return res.json({success: true, msg:"Transaction Sccessfull", token: generateAccessToken(req.user.id, true)});
     }catch(err){
         console.log(err);
         res.json({Err: err});
+    }
+}
+
+exports.leaderboardDetails = async(req,res,next)=>{
+    try{
+        const Expenses = await expense.findAll()
+        const Users = await user.findAll()
+        const userAggergatedExpenses = {}
+        //expense table 
+        Expenses.forEach((exp)=>{
+            if(userAggergatedExpenses[exp.userId]){
+                userAggergatedExpenses[exp.userId] = userAggergatedExpenses[exp.userId]+ exp.amount;
+            }else{
+                userAggergatedExpenses[exp.userId] = exp.amount;
+            }
+        })
+        var userLeaderboardDetails = [];
+        Users.forEach((person)=>{
+            userLeaderboardDetails.push({name: person.name, totalCost: userAggergatedExpenses[person.id] || 0})
+        })
+        console.log(userLeaderboardDetails);
+        userLeaderboardDetails.sort((a,b)=> b.totalCost - a.totalCost);
+        res.json(userLeaderboardDetails);
+
+    }catch(err){
+        console.log(err);
     }
 }

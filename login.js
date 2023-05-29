@@ -14,12 +14,13 @@ button.addEventListener("click", async(e)=>{
     const userLogin = await axios.post("http://localhost:2500/user-login",obj)
         
         if(userLogin.data.success===true){
-           
+
+            //localStorage.setItem('isPremium', userLogin.data.isPremium)
             localStorage.setItem('token', userLogin.data.token);
             
             console.log("User data is available in DB");
             alert("User Logged In");
-             window.location.href="./index.html";
+            window.location.href="./index.html";
             
         }else{
             console.log("User Not existing");
