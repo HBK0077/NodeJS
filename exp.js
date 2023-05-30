@@ -43,7 +43,7 @@ async function showLeaderboard(){
                 var leaderboardElem = document.getElementById("board");
                 leaderboardElem.innerHTML += `<h1>LeaderBoard</h1>`
                 userLeaderboardArray.data.forEach((userDetails)=>{
-                    leaderboardElem.innerHTML += `<li>Name-${userDetails.name} TotalExpense-${userDetails.totalCost}</li>`;
+                    leaderboardElem.innerHTML += `<li>Name-${userDetails.name} TotalExpense-${userDetails.totalExpense}</li>`;
                 
                 })
                
