@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken'); 
 const RazorPay = require('razorpay');
 const order = require("../models/orders");
+const sequelize = require("../util/database");
 require('dotenv').config();
 
 exports.addExpenses = async(req,res,next)=>{
@@ -192,24 +193,19 @@ exports.updateStatus = async(req,res,next)=>{
 
 exports.leaderboardDetails = async(req,res,next)=>{
     try{
-        const Expenses = await expense.findAll()
-        const Users = await user.findAll()
-        const userAggergatedExpenses = {}
-        //expense table 
-        Expenses.forEach((exp)=>{
-            if(userAggergatedExpenses[exp.userId]){
-                userAggergatedExpenses[exp.userId] = userAggergatedExpenses[exp.userId]+ exp.amount;
-            }else{
-                userAggergatedExpenses[exp.userId] = exp.amount;
-            }
-        })
-        var userLeaderboardDetails = [];
-        Users.forEach((person)=>{
-            userLeaderboardDetails.push({name: person.name, totalCost: userAggergatedExpenses[person.id] || 0})
-        })
-        console.log(userLeaderboardDetails);
-        userLeaderboardDetails.sort((a,b)=> b.totalCost - a.totalCost);
-        res.json(userLeaderboardDetails);
+        const leaderBoardOfUsers = await user.findAll({
+            attributes: ['id', 'name', [sequelize.fn('sum', sequelize.col('Expenses.amount')), 'totalCost']],
+            include: [
+                {
+                    model: expense,
+                    attributes: []
+                }
+            ],
+            group: ['users.id'],
+            order: [['totalCost', "DESC"]]
+        });
+
+        res.json(leaderBoardOfUsers);
 
     }catch(err){
         console.log(err);
