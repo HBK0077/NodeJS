@@ -34,14 +34,25 @@ exports.premiumMembership = async(req,res,next)=>{
         res.json({Error: err});
     }
 }
+
+
 function generateAccessToken(id, isPremium){
     return jwt.sign({userId: id, isPremium}, 'secretKeyIsBiggerValue')
 }
+
+
 exports.updateStatus = async(req,res,next)=>{
+    const transaction = await sequelize.transaction();
     try{
         const {payment_id, order_id} = req.body;
         //console.log(payment_id, order_id);
-        const orders = await order.findOne({where: {orderid: order_id}});
+        const orders = await order.findOne({
+            where: {
+                orderid: order_id
+            }
+        },{
+            transaction: transaction
+        });
         console.log(payment_id);
         if(payment_id === null){
             res.json({success: false, msg:"Payment Failed"})
@@ -50,8 +61,10 @@ exports.updateStatus = async(req,res,next)=>{
         await orders.update({paymentid: payment_id, status: "SUCCESSFUL"});
         //console.log(payment_id);
         await req.user.update({isPremium: true});
-        return res.json({success: true, msg:"Transaction Sccessfull", token: generateAccessToken(req.user.id, true)});
+        res.json({success: true, msg:"Transaction Sccessfull", token: generateAccessToken(req.user.id, true)});
+        await transaction.commit();
     }catch(err){
+        await transaction.rollback();
         console.log(err);
         res.json({Err: err});
     }

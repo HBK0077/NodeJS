@@ -95,7 +95,7 @@ window.addEventListener("DOMContentLoaded", async()=>{
 function showBrowser(show){
     //console.log(show);
     var childNode=`<li id=${show.id} style="margin-bottom:10px;">${show.description}-${show.amount}-${show.category}
-             <button onclick="deleteExpense('${show.id}')" style="float:right; margin-left:5px;">Delete</button>  
+             <button onclick="deleteExpense('${show.id}','${show.amount}')" style="float:right; margin-left:5px;">Delete</button>  
              <button onclick=editExpense('${show.id}','${show.description}','${show.amount}','${show.category}') style="float:right;">Edit</button>
                      </li>`
                      parentNode.innerHTML=parentNode.innerHTML+childNode;
@@ -104,11 +104,11 @@ function showBrowser(show){
 
 //delete the expense
 
-async function deleteExpense(key){
+async function deleteExpense(key, amount){
     try{
         console.log(parentNode)
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:2500/delete-expenses/${key}`,{headers: {"Authorization": token}})
+        await axios.delete(`http://localhost:2500/delete-expenses/${key}/${amount}`,{headers: {"Authorization": token}})
         console.log("Entered Deleted DOM");
         let child = document.getElementById(key);
         //console.log(child);

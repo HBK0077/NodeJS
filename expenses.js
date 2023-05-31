@@ -12,7 +12,7 @@ routes.post("/add-expenses", userAuthentication.authenticate, admin.addExpenses)
 
 routes.get("/show-expenses", userAuthentication.authenticate ,admin.getExpenses);
 
-routes.delete("/delete-expenses/:id",userAuthentication.authenticate, admin.deleteExpense);
+routes.delete("/delete-expenses/:id/:amount",userAuthentication.authenticate, admin.deleteExpense);
 
 
 

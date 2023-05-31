@@ -8,6 +8,7 @@ const sequelize = require("../util/database");
 require('dotenv').config();
 
 exports.addUser = async(req,res,next)=>{
+    const transaction = await sequelize.transaction();
     try{
         const name = req.body.name;
         const email = req.body.email;
@@ -35,8 +36,11 @@ exports.addUser = async(req,res,next)=>{
                     email:email,
                     password:hash,
                     totalExpense:totalExpense
+                },{
+                    transaction: transaction
                 })
                 res.json({newUser: data, msg:"User created", success: true});
+                await transaction.commit();
             }    
             }
             
@@ -47,14 +51,22 @@ exports.addUser = async(req,res,next)=>{
         res.json({
             Error: err
         })
+        await  transaction.rollback();
     }
 
 }
+
+
+
 function generateAccessToken(id, isPremium){
     return jwt.sign({userId: id, isPremium}, 'secretKeyIsBiggerValue')
 }
 
+
+
+
 exports.userLogin = async(req,res,next)=>{
+    const transaction = await sequelize.transaction();
     try{
         const checkEmails = req.body.email;
         const checkPassword = req.body.password;
@@ -63,6 +75,8 @@ exports.userLogin = async(req,res,next)=>{
             where:{
                 email:checkEmails
             }
+        },{
+            transaction: transaction
         })
         console.log(login[0]);
         if(login.length>0){
@@ -74,10 +88,10 @@ exports.userLogin = async(req,res,next)=>{
                 //console.log(result);
                 if(result===true){
                     //res.redirect("index.html");
-                    return(
-                        res.json({msg:"Password is correct",
-                    success:true, token: generateAccessToken(login[0].id, login[0].isPremium)}
-                    ))
+                    
+                    res.json({msg:"Password is correct",success:true, token: generateAccessToken(login[0].id, login[0].isPremium)})
+                    await transaction,commit();
+                    
                 }else{
                     return(res.json({msg:"Password is incorrect",
                     success:false}))
@@ -91,5 +105,6 @@ exports.userLogin = async(req,res,next)=>{
     }
     catch(error){
         res.json({Error: error});
+        await transaction.rollback();
     }
 }
