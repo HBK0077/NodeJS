@@ -69,33 +69,44 @@ exports.getExpenses = async(req,res,next)=>{
 exports.deleteExpense = async(req,res,next)=>{
     const transaction = await sequelize.transaction();
     try{
+        console.log("Insedddeedddhbfjnd");
         if(!req.params.id){
             throw new Error("Id is mandatory");
         }
     const detailsId = req.params.id;
-    const amount = req.params.amount;
-    console.log(amount);
-    let minusExpense = 0;
-    await expense.destroy({
+    const exp = await expense.findOne({
+        where:{
+            id: detailsId
+        }
+    })
+    console.log(exp);
+    console.log(exp.amount);
+    const totalExp = Number(req.user.totalExpense) - Number(exp.amount);
+    console.log(totalExp);
+
+
+    const deleted = await expense.destroy({
         where: {
             id:detailsId, 
-            userId: req.user.id
-        }
-    });
-    //minusExpense = totalExpense - amount;
-    await user.update({
-        totalExpense: totalExpense - amount,
-        where:{
-            id: req.user.id
-        }
-    },{
+            userId: req.user.id            
+        },
         transaction: transaction
+    });
+    console.log(deleted);
+    console.log(totalExp);
+    const updated = await user.update({
+        totalExpense: totalExp
+    },{
+        where:{
+            id: req.user.id,
+        }
     })
+    console.log(updated);
     res.json({msg:"Deleted", success:true});
     await transaction.commit();
     }
     catch(err){
-        console.log("Error in app.js delete Method");
+        console.log("Error in delete Method");
         res.json({Error: err});
         await transaction.rollback();
     }
