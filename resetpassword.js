@@ -61,3 +61,67 @@ exports.forgotpassword = async (req, res) => {
     }
 }
 
+exports.resetpassword = async(req, res) => {
+    try{
+        const id =  req.params.id;
+    const forgotpasswordrequest = await Forgotpassword.findOne({ where : 
+        { 
+            id: id
+         }})
+    console.log(forgotpasswordrequest);
+        if(forgotpasswordrequest){
+            await forgotpasswordrequest.update({ active: false});
+            res.send(`<html>
+                                    <script>
+                                        function formsubmitted(e){
+                                            e.preventDefault();
+                                            console.log('called')
+                                        }
+                                    </script>
+
+                                    <form action="/updatepassword/${id}" method="get">
+                                        <label for="newpassword">Enter New password</label>
+                                        <input name="newpassword" type="password" required></input>
+                                        <button>reset password</button>
+                                    </form>
+                                </html>`
+                                )
+            res.end()
+
+        
+    }
+    }catch(err){
+        console.log(err);
+    }
+    
+}
+
+exports.updatepassword = async(req, res) => {
+
+    try {
+        const { newpassword } = req.query;
+        const { resetpasswordid } = req.params;
+        const resetpasswordrequest = await Forgotpassword.findOne({ where : { id: resetpasswordid }})
+
+        const User = await user.findOne({where: { id : resetpasswordrequest.userId}})
+                // console.log('userDetails', user)
+                if(User) {
+                    //encrypt the password
+                        bcrypt.hash(newpassword, 5, async(err, hash)=>{
+                            // Store hash in your password DB.
+                            if(err){
+                                console.log(err);
+                                throw new Error(err);
+                            }
+                            await User.update({ password: hash })
+                                res.json({message: 'Successfuly update the new password', success: true});
+                            
+                    });
+            } else{
+                return res.json({ error: 'No user Exists', success: false})
+            }
+    } catch(error){
+        return res.status(403).json({ error, success: false } )
+    }
+
+}
