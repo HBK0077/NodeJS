@@ -32,3 +32,12 @@ button.addEventListener("click", async(e)=>{
     
    
 })
+//forgot password
+let forgotButton = document.getElementById("forgot");
+            forgotButton.addEventListener("click", async(e)=>{
+                try{
+                    window.location.href="forgot-password.html";
+                }catch(err){
+                    console.log(err);
+                }
+            })
