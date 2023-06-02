@@ -1,10 +1,10 @@
 //here we define all the expense methods which has to dsiplayed in the browser.
 let amount=document.getElementById("amount");
-let description=document.getElementById("description")
-let category=document.getElementById("category")
-let button=document.getElementById("press")
-let error=document.getElementById("error")
-let parentNode=document.getElementById("allExpenses")
+let description=document.getElementById("description");
+let category=document.getElementById("category");
+let button=document.getElementById("press");
+let error=document.getElementById("error");
+let parentNode=document.getElementById("allExpenses");
 let btn = document.getElementById("premium");
 
 
@@ -20,12 +20,14 @@ function parseJwt (token) {
 }
 
 function showPremiumButton(){
+    
     btn.style.visibility="hidden";
-    const element = document.createElement("h4");
+    const element = document.createElement("h6");
     const text = document.createTextNode("You are a Premium User.");
     element.appendChild(text);
     const heading = document.getElementById("heading");
     heading.appendChild(element);
+    //showDownloadButton();
 }
 
 async function showLeaderboard(){
@@ -34,6 +36,7 @@ async function showLeaderboard(){
         inputElement.type = "button";
         inputElement.value = "Show Leaderboard";
         console.log(inputElement);
+
         inputElement.onclick = async()=>{
             
                 const token = localStorage.getItem("token");
@@ -49,12 +52,54 @@ async function showLeaderboard(){
                
             }
             document.getElementById("message").appendChild(inputElement);
-            }catch(err){
+            
+            }
+            catch(err){
                 console.log(err);
             }
            
 
+}
+
+async function showDownloadButton(){
+    try{
+        const element = document.createElement("input");
+        element.type="button";
+        element.value="Download expense";
+        console.log(element);
+        element.onclick = async()=>{
+            try{
+                //e.preventDefault();
+                const token = localStorage.getItem('token');
+                const downloaded = await axios.get("http://localhost:2500/download",{headers:{"Authorization": token}});
+                console.log(downloaded.data);
+                if(downloaded.data.sucess===true){
+                    var a = document.createElement("a");
+                    a.href = downloaded.data.fileUrl;
+                    a.download = "myexpense.csv";
+        
+                }else{
+                    alert("Error");
+                    console.log(downloaded.data.msg);
+                }
+                
+            }
+            catch(err){
+                console.log(err);
+                console.log("error in download function");
+            }
+
         }
+        document.getElementById("expenseDownloadButton").appendChild(element);
+    }catch(err){
+        console.log(err);
+
+    }
+    
+    
+    
+}
+
 
 
 //fetch all the expensedata  using get service
@@ -74,6 +119,7 @@ window.addEventListener("DOMContentLoaded", async()=>{
         }
         showPremiumButton();
         showLeaderboard();
+        showDownloadButton();
         localStorage.setItem('token', token);
         
        }else{
@@ -95,7 +141,7 @@ window.addEventListener("DOMContentLoaded", async()=>{
 function showBrowser(show){
     //console.log(show);
     var childNode=`<li id=${show.id} style="margin-bottom:10px;">${show.description}-${show.amount}-${show.category}
-             <button onclick="deleteExpense('${show.id}','${show.amount}')" style="float:right; margin-left:5px;">Delete</button>  
+             <button onclick="deleteExpense('${show.id}')" style="float:right; margin-left:5px;">Delete</button>  
              <button onclick=editExpense('${show.id}','${show.description}','${show.amount}','${show.category}') style="float:right;">Edit</button>
                      </li>`
                      parentNode.innerHTML=parentNode.innerHTML+childNode;
@@ -104,11 +150,11 @@ function showBrowser(show){
 
 //delete the expense
 
-async function deleteExpense(key, amount){
+async function deleteExpense(key){
     try{
         console.log(parentNode)
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:2500/delete-expenses/${key}/${amount}`,{headers: {"Authorization": token}})
+        await axios.delete(`http://localhost:2500/delete-expenses/${key}`,{headers: {"Authorization": token}})
         console.log("Entered Deleted DOM");
         let child = document.getElementById(key);
         //console.log(child);
@@ -147,6 +193,7 @@ button.addEventListener("click", async(e)=>{
 
 //premium button code
 document.getElementById("premium").onclick = async function(e){
+    try{
     const token = localStorage.getItem('token');
     const response = await axios.get('http://localhost:2500/premium-membership',{headers:{"Authorization": token}});
     console.log(response);
@@ -160,11 +207,17 @@ document.getElementById("premium").onclick = async function(e){
         },{headers: {"Authorization": token}})
 
         alert("Your are a premium user now");
-    
+        
         localStorage.setItem('token', result.data.token);
+        
         showPremiumButton();
-        showLeaderboard();
-            
+        
+        showLeaderboard(); 
+        showDownloadButton();
+        
+        
+           
+           
         }
     };
     const rzp1 = new Razorpay(options);
@@ -180,5 +233,11 @@ document.getElementById("premium").onclick = async function(e){
         console.log(failed.data.msg);
         alert("Somthing went wrong");
     });
+}catch(err){
+    console.log(err);
+}
 }
 
+
+
+    
