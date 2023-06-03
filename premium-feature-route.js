@@ -9,4 +9,8 @@ const RazorPay = require('razorpay');
 //leaderboard
 routes.get("/leaderboard",userAuthentication.authenticate, premiumFeature.leaderboardDetails);
 
+//download particular user expense
+routes.get("/download",userAuthentication.authenticate, premiumFeature.downloadExpense);
+
+
 module.exports = routes;

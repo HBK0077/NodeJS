@@ -63,33 +63,27 @@ async function showLeaderboard(){
 
 async function showDownloadButton(){
     try{
+        //const id = req.params.id;
         const element = document.createElement("input");
         element.type="button";
         element.value="Download expense";
         console.log(element);
         element.onclick = async()=>{
-            try{
                 //e.preventDefault();
                 const token = localStorage.getItem('token');
-                const downloaded = await axios.get("http://localhost:2500/download",{headers:{"Authorization": token}});
-                console.log(downloaded.data);
-                if(downloaded.data.sucess===true){
+                const downloaded = await axios.get(`http://localhost:2500/download`,{headers:{"Authorization": token}});
+                console.log(downloaded);
+                if(downloaded.data.success===true){
                     var a = document.createElement("a");
                     a.href = downloaded.data.fileUrl;
                     a.download = "myexpense.csv";
+                    a.click();
         
                 }else{
-                    alert("Error");
                     console.log(downloaded.data.msg);
                 }
                 
             }
-            catch(err){
-                console.log(err);
-                console.log("error in download function");
-            }
-
-        }
         document.getElementById("expenseDownloadButton").appendChild(element);
     }catch(err){
         console.log(err);
