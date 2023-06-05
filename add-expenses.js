@@ -69,7 +69,7 @@ exports.getExpenses = async(req,res,next)=>{
 exports.deleteExpense = async(req,res,next)=>{
     const transaction = await sequelize.transaction();
     try{
-        console.log("Insedddeedddhbfjnd");
+        //console.log("Insedddeedddhbfjnd");
         if(!req.params.id){
             throw new Error("Id is mandatory");
         }
@@ -110,4 +110,23 @@ exports.deleteExpense = async(req,res,next)=>{
         res.json({Error: err});
         await transaction.rollback();
     }
+}
+
+
+exports.showNumberExpense = async(req,res,next)=>{
+    try{
+        const{page,pagesize}=req.query;
+        const limits=+pagesize
+        const data=  await expense.findAll({
+            offset:(page-1)*pagesize,
+            limit:limits,
+            where: { userId:req.user.id }
+        })
+        console.log(data)
+        res.json({Data:data})
+    }catch(e){
+        console.log("pagination error-->",e)
+        res.json({Error:e})
+    }
+
 }

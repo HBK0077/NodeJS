@@ -5,6 +5,7 @@ let category=document.getElementById("category");
 let button=document.getElementById("press");
 let error=document.getElementById("error");
 let parentNode=document.getElementById("allExpenses");
+//let parentSelectNode = document.getElementById("selecting");
 let btn = document.getElementById("premium");
 
 
@@ -68,6 +69,7 @@ async function showDownloadButton(){
         element.type="button";
         element.value="Download expense";
         console.log(element);
+        
         element.onclick = async()=>{
                 //e.preventDefault();
                 const token = localStorage.getItem('token');
@@ -104,26 +106,32 @@ window.addEventListener("DOMContentLoaded", async()=>{
         console.log(decodeToken);
         const isPremium = decodeToken.isPremium;
         //console.log(isPremium);
+        
        if(isPremium === true){
-        const response = await axios.get("http://localhost:2500/show-expenses",{headers: {"Authorization": token}})
-        console.log(response.data.allExpense);
-        console.log(response.data.allExpense.length);
-        for(var i=0; i<response.data.allExpense.length;i++){
-            showBrowser(response.data.allExpense[i]);
-        }
+        // const response = await axios.get("http://localhost:2500/show-expenses",{headers: {"Authorization": token}})
+        // console.log(response.data.allExpense);
+        // console.log(response.data.allExpense.length);
+        
+        // for(var i=0; i<response.data.allExpense.length;i++){
+        //     showBrowser(response.data.allExpense[i]);
+        // }
         showPremiumButton();
         showLeaderboard();
         showDownloadButton();
+        pagination();
+
+
         localStorage.setItem('token', token);
         
-       }else{
-        const response = await axios.get("http://localhost:2500/show-expenses",{headers: {"Authorization": token}})
-        console.log(response.data.allExpense);
-        console.log(response.data.allExpense.length);
-        for(var i=0; i<response.data.allExpense.length;i++){
-            showBrowser(response.data.allExpense[i]);
-        }
        }
+    //    else{
+    //     const response = await axios.get("http://localhost:2500/show-expenses",{headers: {"Authorization": token}})
+    //     console.log(response.data.allExpense);
+    //     console.log(response.data.allExpense.length);
+    //     for(var i=0; i<response.data.allExpense.length;i++){
+    //         showBrowser(response.data.allExpense[i]);
+    //     }
+       
     
         
     }catch(err){
@@ -132,7 +140,60 @@ window.addEventListener("DOMContentLoaded", async()=>{
     }
 })
 
+async function pagination(){
+    try{
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:2500/show-expenses",{headers: {"Authorization": token}})
+        //console.log(response.data.allExpense);
+        var pagination = document.getElementById("pagination");
+
+        var totalPagesize = localStorage.getItem("pageSize");
+        const totalPage = Math.ceil((response.data.allExpense.length)/totalPagesize);
+        //console.log("This is >>>>>>>>>>>>>>>>>>>>>>>>>>>>", totalPage);
+        if(!totalPagesize){
+            localStorage.setItem("pageSize", 5);
+
+        }
+        const result = await axios.get(`http://localhost:2500/pagination?page=${1}&pagesize=${5}`,{headers: {"Authorization": token}});
+        let allExpense = result.data.Data;
+        console.log(allExpense);
+
+        for(let i=0;i<allExpense.length;i++){
+            showBrowser(result.data.Data[i]);
+        }
+        for(let i=0;i<totalPage;i++){
+            let page=i+1;
+            button = document.createElement("button");
+            button.innerHTML=i+1;
+            button.onclick = async()=>{
+                parentNode.innerHTML = "";
+                const ress = await axios.get(`http://localhost:2500/pagination?page=${page}&pagesize=${totalPagesize}`,{headers: {"Authorization": token}});
+                let allExpense = ress.data.Data;
+                console.log(allExpense);
+                for(let i=0;i<allExpense.length;i++){
+                    showBrowser(ress.data.Data[i]);
+                }        
+            } 
+            pagination.appendChild(button);
+
+        }
+
+
+    }catch(err){
+        console.log(err);
+    }
+    
+
+}
+
 function showBrowser(show){
+
+    const pagesize=document.getElementById("pagesize")
+        pagesize.addEventListener("click",()=>{
+            localStorage.setItem("pageSize",pagesize.value)
+            window.location.reload()
+           })
+
     //console.log(show);
     var childNode=`<li id=${show.id} style="margin-bottom:10px;">${show.description}-${show.amount}-${show.category}
              <button onclick="deleteExpense('${show.id}')" style="float:right; margin-left:5px;">Delete</button>  
@@ -209,7 +270,6 @@ document.getElementById("premium").onclick = async function(e){
         showLeaderboard(); 
         showDownloadButton();
         
-        
            
            
         }
@@ -234,4 +294,3 @@ document.getElementById("premium").onclick = async function(e){
 
 
 
-    

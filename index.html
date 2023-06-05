@@ -62,6 +62,12 @@
     #press:hover{
         background-color: green;
     }
+    #pagesize{
+        width: 75%;
+        font-family: inherit;
+        height: 40px;
+        border-radius: 8px;
+    }
     li{
         margin-top: 13px;
         padding: 5px;
@@ -91,15 +97,30 @@
         
         
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    </form>
 
-        <h4 id="heading"></h4>
+    <form id="form" action="#">
+       
+    <button class="my-btn">!!...All Expenses...!!</button>
+    <br><br>
+        <select name="pagesize" id="pagesize">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="25">25</option>
+        </select>
         
+        <h6 id="heading"></h6>
         <ol id="allExpenses"></ol>
+        <ol id="pagination"></ol>
         <div id="message"></div>
         <div id="expenseDownloadButton"></div>
         <ol id="board"></ol>
         
 </form>
+        
+        
+ 
 </div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
