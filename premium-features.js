@@ -1,5 +1,6 @@
 const expense = require("../models/expense");
 const user = require("../models/user"); 
+const downloadFile = require("../models/download");
 require('dotenv').config();
 const AWS = require("aws-sdk");
 
@@ -31,6 +32,10 @@ exports.downloadExpense = async(req,res,next)=>{
         const fileName = `Expenses${userId}/${new Date()}.txt`;
         const fileUrl = await uploadToS3(stringifiedExpenses, fileName);
         console.log(fileUrl);
+        await downloadFile.create({
+            fileUrl: fileUrl,
+            userId: userId
+        })
         return res.json({fileUrl, success:true});
         
 
@@ -42,9 +47,9 @@ exports.downloadExpense = async(req,res,next)=>{
 
 async function uploadToS3(data, fileName){
     try{
-        const BUCKET_NAME="expensetracker07";
-        const IAM_USER_KEY="AKIAQWAA5DPSKFFYVPH5";
-        const IAM_USER_SECRET_KEY="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"; 
+        const BUCKET_NAME = process.env.BUCKET_NAME;
+        const IAM_USER_KEY = process.env.S3_USER_KEY;
+        const IAM_USER_SECRET_KEY = process.env.S3_USER_SECRET_KEY; 
 
         let s3bucket = new AWS.S3({
             accessKeyId: IAM_USER_KEY,
@@ -74,3 +79,4 @@ async function uploadToS3(data, fileName){
         console.log(err);
     }
 }
+
