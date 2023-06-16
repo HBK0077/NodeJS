@@ -1,19 +1,12 @@
 "use strict";
-const number1 = document.getElementById("num1");
-const number2 = document.getElementById("num2");
-const buttonElement = document.getElementById("button");
-function add(num1, num2) {
-    if (typeof num1 === 'number' && typeof num2 === 'number') {
-        return num1 + num2;
-    }
-    else if (typeof num1 === 'string' && typeof num2 === 'string') {
-        return num1 + ' ' + num2;
-    }
-    return +num1 + +num2;
-}
-buttonElement.addEventListener("click", () => {
-    const num1 = number1.value;
-    const num2 = number2.value;
-    const result = add(+num1, +num2);
-    console.log(result);
-});
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express = require("express");
+const body_parser_1 = __importDefault(require("body-parser"));
+const todos_1 = __importDefault(require("./routes/todos"));
+const app = express();
+app.use(todos_1.default);
+app.use(body_parser_1.default.json());
+app.listen(6000);
